@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 동적 SQL 적용 -->
+ <!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0 //EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="member">
+	
+	<select id="selectList" resultType="chap07.MemberVo"> <!-- MemberVo에 저장. mybatis가 다 읽어와서 .... -->
+		select mno, mname, email, cre_date from members order by mno asc
+	</select>
+		
+	<select id="login" resultType="chap09.MemberVo" parameterType="chap09.MemberVo"> 
+		select mno, mname, email, cre_date from members <!-- SQL결과를 chap08.MemberVo 타입으로 담아! 파라미터 타입도 chap08.MemberVo  이게 마이바티스가 하는 일임 -->
+		where email=#{email} and pwd=#{pwd} <!-- 객체.get메소드 해서      게터메소드의 get빼고 첫자를 소문자로 바꾼 이름하고 같아야함! jsp랑 똑같다고 보면 돼 -->
+	</select>	
+
+	<select id="selectOne" resultType="chap09.MemberVo" parameterType="int"> <!--하나라서 int도 가능. 위에처럼도 가능  -->
+		select mno, mname, email, cre_date from members
+		where mno=#{mno}
+	</select>	
+	
+<!-- 	<select id="update" resultType="chap08.MemberVo" parameterType="chap08.MemberVo"> 하나라서 int도 가능. 위에처럼도 가능 
+		update members set mname=#{mname}, email=#{email} where mno=#{mno}
+	</select>	
+ -->	
+
+	<update id="update" parameterType="chap09.MemberVo">
+		update members set
+			email=#{email},
+			mname=#{mname}
+			<if test="pwd != ''" >, pwd=#{pwd}</if>
+			
+		where mno=#{mno}
+	</update>
+	<!-- insert update delete에는 ResultType안 씀 -->
+	
+	<insert id="insert" parameterType="chap09.MemberVo" >
+		insert into members (email, pwd, mname, cre_date, mod_date)
+		values(#{email}, #{pwd}, #{mname},now(),now())
+		<selectKey keyProperty="mno" resultType="int" order="AFTER">
+			select last_insert_id()
+		</selectKey> 
+	</insert>
+	
+	<insert id="insertSchool" parameterType="map">
+		insert into school (members_mno, school, year)
+		values(#{members_mno},#{school},#{year})
+	
+	</insert>
+	
+	
+	</mapper>
+	
+	
+	
+	
+	
+	
